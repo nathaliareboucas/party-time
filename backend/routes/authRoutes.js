@@ -40,4 +40,30 @@ router.post('/register', async (req, res) => {
     }
 })
 
+// login an user
+router.post('/login', async (req, res) => {
+    const loginUserReq = req.body
+
+    if (loginUserReq.email == null || loginUserReq.password == null) {
+        return res.status(400).json({error: "Por favor, preencha todos os campos!"})
+    }
+
+    const existingUser = await User.findOne({email: loginUserReq.email})
+    if (!existingUser) {
+        return res.status(400).json({error: "Não há um usuário cadastrado com este e-mail!"})
+    }
+
+    const checkPassword = await bcrypt.compare(loginUserReq.password, existingUser.password)
+    if (!checkPassword) {
+        return res.status(401).json({error: "Acesso negado!"})
+    }
+
+    const token = jwt.sign({
+        name: existingUser.name,
+        id: existingUser._id
+    }, 'nossoSecret')
+
+    res.status(200).json({message: "Login realizado com sucesso!", userId: existingUser._id, token: token})
+})
+
 module.exports = router;
