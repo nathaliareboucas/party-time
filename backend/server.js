@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 //routes
-
+const authRouter = require('./routes/authRoutes');
 
 //middlewares
 
@@ -18,6 +18,8 @@ app.use(cors());
 app.use(express.static('public'));
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
+
+app.use('/api/auth', authRouter);
 
 //conexão mongodb
 mongoose.connect(`mongodb://0.0.0.0:27017/${dbName}`)
