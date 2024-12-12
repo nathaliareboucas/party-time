@@ -5,6 +5,7 @@ const cors = require('cors');
 
 //routes
 const authRouter = require('./routes/authRoutes');
+const userRouter = require('./routes/userRoutes');
 
 //middlewares
 
@@ -20,6 +21,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 
 app.use('/api/auth', authRouter);
+app.use('/api/user', userRouter);
 
 //conexão mongodb
 mongoose.connect(`mongodb://0.0.0.0:27017/${dbName}`)
