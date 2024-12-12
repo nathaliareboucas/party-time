@@ -77,4 +77,33 @@ router.get('/userParties', verifyToken, async (req, res) => {
     }
 })
 
+// get user party
+router.get('/userParty/:partyId', verifyToken, async (req, res) => {
+    try {
+        const userByToken = await getUserByToken(req.header('Authorization'))
+        const partyId = req.params.partyId
+        const userId = userByToken._id.toString()
+        const party = await Party.findOne({_id: partyId, userId: userId})
+        return res.json({data: party})
+    } catch (err) {
+        return res.status(400).json({message: 'Evento não encontrado!'})
+    }
+})
+
+// get public party
+router.get('/:partyId', async (req, res) => {
+    const partyId = req.params.partyId
+    try {
+        const party = await Party.findOne({_id: partyId})
+
+        if (party.privacy === true) {
+            return res.json({message: 'Acesso negado'})
+        } 
+
+        return res.json({data: party})
+    } catch (err) {
+        return res.status(400).json({message: 'Evento não encontrado!'})
+    }
+})
+
 module.exports = router
