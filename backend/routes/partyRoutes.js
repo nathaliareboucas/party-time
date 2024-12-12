@@ -118,8 +118,44 @@ router.delete('/:partyId', verifyToken, async (req, res) => {
     } catch (err) {
         return res.status(400).json({err})
     }
-   
+})
 
+// update a party
+router.put('/:partyId', verifyToken, upload.fields([{name: 'photos'}]), async (req, res) => {
+    const partyReq = req.body
+    const partyId = req.params.partyId
+
+    let files = []
+
+    if (req.files) {
+        files = req.files.photos
+    }
+
+    if (partyReq.title == null || partyReq.description == null || 
+        partyReq.partyDate == null || partyReq.privacy == null) {
+            return res.status(400).json({error: 'Título, descrição, data da festa e privacidade são obrigatórios!'})
+    }
+
+    const userByToken = await getUserByToken(req.header('Authorization'))
+    const userId = userByToken._id.toString()
+    if (partyReq.userId != null && partyReq.userId != userId) {
+        return res.status(401).json({message: 'Acesso negado!'})
+    }
+
+    let photos = []
+    if (files && files.length > 0) {
+        files.forEach((photo, i) => {
+            photos[i] = photo.path
+        })
+        partyReq.photos = photos
+    }
+
+    try {
+        const updatedParty = await Party.findOneAndUpdate({_id: partyId, userId: userId}, {$set: partyReq}, {new: true})
+        return res.json({message: 'Evento atualizado com sucesso!', data: updatedParty})
+    } catch (err) {
+        return res.status(500).json({err})
+    }
 })
 
 module.exports = router
