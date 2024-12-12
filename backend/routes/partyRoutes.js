@@ -106,4 +106,20 @@ router.get('/:partyId', async (req, res) => {
     }
 })
 
+// delete a party
+router.delete('/:partyId', verifyToken, async (req, res) => {
+    const partyId = req.params.partyId
+    const userByToken = await getUserByToken(req.header('Authorization'))
+    const userId = userByToken._id.toString()
+
+    try {
+        await Party.deleteOne({_id: partyId, userId: userId})
+        return res.json({message: 'Evento removido com sucesso!'})
+    } catch (err) {
+        return res.status(400).json({err})
+    }
+   
+
+})
+
 module.exports = router
